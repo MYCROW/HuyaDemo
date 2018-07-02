@@ -122,8 +122,9 @@ public class CategoryTabStrip extends HorizontalScrollView {
             @Override
             public void onClick(View v) {
                 Log.i("onClick",""+position);
+                currentPosition = position;
                 calculateIndicatorRect(indicatorRect);
-
+                invalidate();
                 pager.setCurrentItem(position);
             }
         });

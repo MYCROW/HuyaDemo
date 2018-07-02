@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
+            if(position == 0)
+                return new Fragment();
             return new Fragment();
         }
 
