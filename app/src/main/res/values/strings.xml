@@ -1,6 +1,24 @@
 <resources>
     <string name="app_name">HuyaDemo</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_home">首页</string>
+    <string name="title_dashboard">娱乐</string>
+    <string name="title_notifications">订阅</string>
+
+    <!--顶部导航栏项目-->
+    <string name="top_recommand">推荐</string>
+    <string name="top_recommand1">王者荣耀</string>
+    <string name="top_recommand2">绝地求生</string>
+    <string name="top_recommand3">LOL</string>
+    <string name="top_recommand4">星秀</string>
+    <string name="top_recommand5">吃喝玩乐</string>
+    <string name="top_recommand6">主机</string>
+    <string name="top_recommand7">刺激战场</string>
+    <string name="top_recommand8">CF</string>
+    <string name="top_recommand9">颜值</string>
+    <string name="top_recommand10">二次元</string>
+    <string name="top_recommand11">DNF</string>
+    <string name="top_recommand12">暴雪</string>
+    <string name="top_recommand13">一起看</string>
+    <string name="top_recommand14">我的世界</string>
+
 </resources>

@@ -11,12 +11,71 @@
         android:id="@+id/navigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="0dp"
-        android:layout_marginStart="0dp"
         android:background="?android:attr/windowBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout"
         app:menu="@menu/navigation" />
+
+    <!--除底部导航栏外所有布局-->
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <!--顶部导航栏-->
+        <RelativeLayout
+            android:id="@+id/category_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/top_category_height">
+            <!--android:background="@drawable/bg_category_bar"-->
+
+            <!--最右侧菜单栏-->
+            <ImageView
+                android:id="@+id/icon_category"
+                android:layout_width="@dimen/top_category_width"
+                android:layout_height="@dimen/top_category_height"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="@string/app_name"
+                android:scaleType="center"
+                android:src="@drawable/ic_category_expand" />
+            <!--装载自定义滑动控件的布局-->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/top_category_height"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/icon_category">
+                <!--自定义滑动控件-->
+                <com.example.crow.huyademo.customview.CategoryTabStrip
+                    android:id="@+id/category_strip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/top_category_height"
+                    android:clipToPadding="false"
+                    android:paddingLeft="6.0dip"
+                    android:paddingRight="6.0dip">
+
+                </com.example.crow.huyademo.customview.CategoryTabStrip>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/category_layout" />
+
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+
+    <declare-styleable name="CategoryTabStrip">
+        <!--<attr name="normalColor" format="reference|color" />-->
+        <!--<attr name="selectedColor" format="reference|color" />-->
+        <!--<attr name="text" format="reference|string" />-->
+        <!--<attr name="textSize" format="dimension" />-->
+    </declare-styleable>
+
+</resources>

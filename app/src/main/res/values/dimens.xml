@@ -2,4 +2,10 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <!--顶部导航栏最右侧菜单栏-->
+    <dimen name="top_category_width">49dp</dimen>
+    <dimen name="top_category_height">49dp</dimen>
+    <!--顶部导航栏标签-->
+    <dimen name="top_category_tap_marginLeft">8dp</dimen>
+    <dimen name="top_category_tap_marginRight">8dp</dimen>
 </resources>
