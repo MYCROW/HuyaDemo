@@ -59,11 +59,6 @@ public class CategoryTabStrip extends HorizontalScrollView {
         super(context, attrs, defStyle);
         mLayoutInflater = LayoutInflater.from(context);
         drawables = new TextDrawable[3];
-//        int i = 0;
-//        while (i < drawables.length) {
-//            drawables[i] = TextDrawable.build(text, color);
-//            i++;
-//        }
 
         indicatorRect = new Rect();
 
@@ -121,15 +116,18 @@ public class CategoryTabStrip extends HorizontalScrollView {
         tab.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("onClick",""+position);
-                currentPosition = position;
-                calculateIndicatorRect(indicatorRect);
-                invalidate();
+                //currentPosition = position;
+                //calculateIndicatorRect(indicatorRect);
                 pager.setCurrentItem(position);
+                invalidate();
             }
         });
         tabsContainer.addView(tab, position, defaultTabLayoutParams);
     }
+
+
+
+
 
     // 计算滑动过程中矩形高亮区域的上下左右位置
     private void calculateIndicatorRect(Rect rect) {
@@ -163,7 +161,6 @@ public class CategoryTabStrip extends HorizontalScrollView {
         if (tabCount == 0) {
             return;
         }
-
         calculateIndicatorRect(indicatorRect);
         int newScrollX = lastScrollX;
         if (indicatorRect.left < getScrollX() + scrollOffset) {
@@ -209,9 +206,6 @@ public class CategoryTabStrip extends HorizontalScrollView {
                     int save = canvas.save();
                     calculateIndicatorRect(indicatorRect);
                     canvas.clipRect(indicatorRect);
-                    //textDrawable.setText(category_text.getText());
-                    //textDrawable.setTextSize(0, category_text.getTextSize());
-                    //textDrawable.setTextColor(getResources().getColor(R.color.category_tab_highlight_text));
                     int left = tab.getLeft() + category_text.getLeft() + (category_text.getWidth() - textDrawable.getIntrinsicWidth()) / 2 + getPaddingLeft();
                     int top = tab.getTop() + category_text.getTop() + (category_text.getHeight() - textDrawable.getIntrinsicHeight()) / 2 + getPaddingTop();
                     textDrawable.setBounds(left, top, textDrawable.getIntrinsicWidth() + left, textDrawable.getIntrinsicHeight() + top);
@@ -246,17 +240,22 @@ public class CategoryTabStrip extends HorizontalScrollView {
     }
 
     private class PageListener implements ViewPager.OnPageChangeListener {
+        //当点击选项与原来选项相隔一个以上 此项置为true
+        boolean flag = false;
+
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            currentPosition = position;
+            if(flag == false)//当flag为true currentPosition使用onPageSelected传入的值
+                currentPosition = position;
             currentPositionOffset = positionOffset;
-
-            scrollToChild(position, (int) (positionOffset * tabsContainer.getChildAt(position).getWidth()));
+//            Log.i("Temp","Pos Scroll:"+position);
             invalidate();
         }
 
         @Override
         public void onPageScrollStateChanged(int state) {
+            //Log.i("onPageScrollStateChange",""+state);
+            //Log.i("onPageScrollStateChange","Item:"+pager.getCurrentItem());
             if (state == ViewPager.SCROLL_STATE_IDLE) {
                 if(pager.getCurrentItem() == 0) {
                     // 滑动到最左边
@@ -268,10 +267,26 @@ public class CategoryTabStrip extends HorizontalScrollView {
                     scrollToChild(pager.getCurrentItem(), 0);
                 }
             }
+            else if(state == ViewPager.SCROLL_STATE_DRAGGING){
+
+            }
+            else if(state == ViewPager.SCROLL_STATE_SETTLING){
+
+            }
         }
 
         @Override
         public void onPageSelected(int position) {
+            Log.i("Temp","Pos select:"+position);
+            if(Math.abs(position-currentPosition)<=1) {
+                Log.i("Temp", "Pos select:" + position);
+                flag = false;
+            }
+            else{
+                currentPosition = position;
+                flag = true;
+            }
+            invalidate();
         }
     }
 }
