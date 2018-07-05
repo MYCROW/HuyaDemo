@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!--
+    首先广告滚动栏的最上方是一个可以滚动滑动的任意图片
+    然后下面内嵌再底部位置的左边是文字说明，右边是小原点显示出是第几张图片
+    -->
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/adverpager"
+        android:layout_width="match_parent"
+        android:layout_height="240dp">
+    </android.support.v4.view.ViewPager
+        >
+
+    <RelativeLayout
+        android:id="@+id/relativelayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/adverpager"
+        >
+
+        <LinearLayout
+            android:id="@+id/linear_buttom"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="#440000FF"
+            >
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/advtext"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="25sp"
+                    android:layout_alignParentLeft="true"
+                    android:textColor="#FFFFFF"
+                    android:text="123"
+                    />
+
+                <RadioGroup
+                    android:id="@+id/radiogroup"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    />
+
+            </RelativeLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

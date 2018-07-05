@@ -277,9 +277,9 @@ public class CategoryTabStrip extends HorizontalScrollView {
 
         @Override
         public void onPageSelected(int position) {
-            Log.i("Temp","Pos select:"+position);
+            //Log.i("Temp","Pos select:"+position);
             if(Math.abs(position-currentPosition)<=1) {
-                Log.i("Temp", "Pos select:" + position);
+                //Log.i("Temp", "Pos select:" + position);
                 flag = false;
             }
             else{

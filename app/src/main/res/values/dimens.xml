@@ -8,4 +8,13 @@
     <!--顶部导航栏标签-->
     <dimen name="top_category_tap_marginLeft">8dp</dimen>
     <dimen name="top_category_tap_marginRight">8dp</dimen>
+    <!--搜索框项属性 包括扫描二维码按钮-->
+    <dimen name="searchview_height">30dp</dimen>
+    <dimen name="scanbubtton_height">30dp</dimen>
+    <dimen name="scanbubtton_width">30dp</dimen>
+    <!--直播间列表属性-->
+    <dimen name="livelist_title_height">30dp</dimen>
+    <!--直播间项目属性-->
+    <dimen name="live_height">150dp</dimen>
+    <dimen name="live_width">260dp</dimen>
 </resources>
