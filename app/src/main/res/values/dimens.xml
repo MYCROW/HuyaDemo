@@ -12,9 +12,27 @@
     <dimen name="searchview_height">30dp</dimen>
     <dimen name="scanbubtton_height">30dp</dimen>
     <dimen name="scanbubtton_width">30dp</dimen>
+    <!--广告版属性-->
+    <dimen name="adverboard_radio_height">30dp</dimen>
     <!--直播间列表属性-->
     <dimen name="livelist_title_height">30dp</dimen>
     <!--直播间项目属性-->
     <dimen name="live_height">150dp</dimen>
     <dimen name="live_width">260dp</dimen>
+    <!--活动属性-->
+    <dimen name="activity_height">50dp</dimen>
+    <dimen name="activity_width">50dp</dimen>
+    <dimen name="activity_order_height">50dp</dimen>
+    <dimen name="activity_order_width">50dp</dimen>
+    <dimen name="activity_title_height">30dp</dimen>
+    <dimen name="activity_text_height">20dp</dimen>
+    <dimen name="activity_title_size">20sp</dimen>
+    <dimen name="activity_text_size">10sp</dimen>
+    <!--广告列表属性-->
+    <dimen name="adverlist_listtitle_height">30dp</dimen>
+    <dimen name="adverlist_icon_height">40dp</dimen>
+    <dimen name="adverlist_icon_weight">40dp</dimen>
+    <dimen name="adverlist_title_height">20dp</dimen>
+    <dimen name="adverlist_test_height">15dp</dimen>
+
 </resources>

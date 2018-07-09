@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/activity_height">
+
+    <RelativeLayout
+        android:id="@+id/re"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true">
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/activity_title_height"
+            android:text="TextView"
+            android:layout_alignParentTop="true"
+            android:textSize="@dimen/activity_title_size"/>
+
+        <TextView
+            android:id="@+id/activityText"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/activity_text_height"
+            android:layout_below="@id/titleText"
+            android:text="TextView2"
+            android:textSize="@dimen/activity_text_size"/>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/orderbt"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/activity_order_height"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/ic_activity_order"/>
+
+</RelativeLayout>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/listtitle"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/adverlist_listtitle_height"
+        android:text="TextView"
+        android:gravity="center_vertical"/>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/listtitle">
+
+        <LinearLayout
+            android:id="@+id/linerAverlist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+</RelativeLayout>
