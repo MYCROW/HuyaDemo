@@ -30,9 +30,10 @@
     <dimen name="activity_text_size">10sp</dimen>
     <!--广告列表属性-->
     <dimen name="adverlist_listtitle_height">30dp</dimen>
-    <dimen name="adverlist_icon_height">40dp</dimen>
-    <dimen name="adverlist_icon_weight">40dp</dimen>
+    <dimen name="adverlist_width">50dp</dimen>
+    <dimen name="adverlist_icon_height">45dp</dimen>
+    <dimen name="adverlist_icon_weight">45dp</dimen>
     <dimen name="adverlist_title_height">20dp</dimen>
-    <dimen name="adverlist_test_height">15dp</dimen>
+    <dimen name="adverlist_test_height">20dp</dimen>
 
 </resources>

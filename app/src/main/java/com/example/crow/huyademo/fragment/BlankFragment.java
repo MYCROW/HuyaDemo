@@ -1,13 +1,16 @@
 package com.example.crow.huyademo.fragment;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.ActivityCompat;
@@ -16,6 +19,8 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -30,20 +35,34 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SearchView;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.example.crow.huyademo.MainActivity;
 import com.example.crow.huyademo.R;
+import com.example.crow.huyademo.customview.SuperEasyRefreshLayout;
 import com.example.crow.huyademo.customview.VerticalViewPager;
 import com.example.crow.huyademo.thread.HttpImgThread;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BlankFragment extends Fragment {
-
-//    private OnFragmentInteractionListener mListener;
 
     private static String NUM = "0";
     private int num;
@@ -51,6 +70,9 @@ public class BlankFragment extends Fragment {
     Context context;
     View view;
     RecyclerView mRecyclerView;
+    RecyclerViewAdapter mRecyclerViewAdapter;
+    SuperEasyRefreshLayout swipe_refresh_layout;
+    ArrayList<ShowData> data;
 
     public BlankFragment() {
         // Required empty public constructor
@@ -76,11 +98,103 @@ public class BlankFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         context = getActivity();
-        if (num == 0) { //推荐
+        //检查授权
+        int REQUEST_EXTERNAL_STORAGE = 1;
+        String[] PERMISSIONS_STORAGE = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+        int permission = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    getActivity(),
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+        if (num == 0) { //推荐页面
             view = inflater.inflate(R.layout.fragment_index0, container, false);
             mRecyclerView = view.findViewById(R.id.recycler_view);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(context));//这里用线性显示 类似于listview
-            mRecyclerView.setAdapter(new RecyclerViewAdapter(context));
+
+            ImageLoaderConfiguration imageLoaderConfiguration = new ImageLoaderConfiguration.Builder(context)
+                    //每个内存缓存文件的最大长宽
+                    .memoryCacheExtraOptions(480, 800)
+                    //每个硬盘缓存文件的最大长宽
+                    .discCacheExtraOptions(480, 800, null)
+                    //线程池内加载的数量
+                    .threadPoolSize(3)
+                    .threadPriority(Thread.NORM_PRIORITY)
+                    .denyCacheImageMultipleSizesInMemory()
+                    //可以传入自己的内存缓存
+                    .memoryCache(new UsingFreqLimitedMemoryCache(2 * 1024 * 1024))
+                    .memoryCacheSize(2 * 1024 * 1024)
+                    //硬盘缓存
+                    .diskCacheSize(50 * 1024 * 1024)
+                    //URL名称MD5加密
+                    .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                    //请求队列处理策略
+                    .tasksProcessingOrder(QueueProcessingType.LIFO)
+                    //文件缓存数量
+                    .discCacheFileCount(50)
+                    //文件缓存路径
+                    .diskCache(new UnlimitedDiskCache(
+                            new File(Environment.getExternalStorageDirectory()
+                                    + "/Pictures")))
+                    .defaultDisplayImageOptions(getDisplayOptions())
+                    //图像下载参数
+                    .imageDownloader(new BaseImageDownloader(context, 5000, 20000))
+                    //日志输出
+                    .writeDebugLogs()
+                    .build();
+            ImageLoader.getInstance().init(imageLoaderConfiguration);
+            //数据准备
+            data = new ArrayList<>(10);
+            LoadDataTask task1 = new LoadDataTask();
+            task1.execute(SEARCH, 0, 0);
+            LoadDataTask task2 = new LoadDataTask();
+            task2.execute(ADBORAD, 1, 0);
+            LoadDataTask task3 = new LoadDataTask();
+            task3.execute(LIVE, 2, 0);
+            LoadDataTask task4 = new LoadDataTask();
+            task4.execute(ACTIVI, 3, 0);
+            LoadDataTask task5 = new LoadDataTask();
+            task5.execute(LIVE, 4, 1);
+            LoadDataTask task6 = new LoadDataTask();
+            task6.execute(ADLIST, 5, 0);
+
+            //绑定适配器
+            mRecyclerViewAdapter = new RecyclerViewAdapter(context, data);
+            mRecyclerView.setAdapter(mRecyclerViewAdapter);
+
+            //处理上拉刷新，下拉加载更多
+            swipe_refresh_layout = (SuperEasyRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
+            swipe_refresh_layout.setOnRefreshListener(new SuperEasyRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            swipe_refresh_layout.setRefreshing(false);
+                            //Toast.makeText(RecyclerViewActivity.this,"刷新 成功",Toast.LENGTH_SHORT).show();
+                        }
+                    }, 2000);
+                }
+            });
+            swipe_refresh_layout.setOnLoadMoreListener(new SuperEasyRefreshLayout.OnLoadMoreListener() {
+                @Override
+                public void onLoad() {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            swipe_refresh_layout.finishLoadMore();
+                            //Toast.makeText(RecyclerViewActivity.this,"加载更多成功",Toast.LENGTH_SHORT).show();
+                        }
+                    }, 2000);
+                }
+            });
+
         } else {
             view = inflater.inflate(R.layout.fragment_index1, container, false);
             TextView tx = view.findViewById(R.id.test1);
@@ -89,12 +203,28 @@ public class BlankFragment extends Fragment {
         return view;
     }
 
-    public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewGroupHolder> {
-        private final LayoutInflater mLayoutInflater;
-        private final Context mContext;
+    //图片文件裁剪选项
+    private DisplayImageOptions getDisplayOptions(){
+        DisplayImageOptions options;
+        options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.bg_live_img)//下载期间显示的图片
+                .showImageForEmptyUri(R.drawable.bg_live_img)//Url为空或者错误显示的图片
+                .showImageOnFail(R.drawable.bg_live_img)//图片加载/解码过程中错误显示的图片
+                .cacheInMemory(true)//设置下载的图片是否缓存在内存中
+                .cacheOnDisk(true)//设置下载的图片是否缓存在SD卡中
+                .considerExifParams(true)
+                .imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
+                .bitmapConfig(Bitmap.Config.RGB_565)//设置图片的解码类型
+                //.delayBeforeLoading()
+                //.preProcessor()
+                .resetViewBeforeLoading(true)//图片在下载前是否重置
+                .displayer(new RoundedBitmapDisplayer(20))//是否设置为圆角 以及弧度
+                .displayer(new FadeInBitmapDisplayer(100))//渐入动画时间
+                .build();
+        return options;
+    }
 
-        private ArrayList<ShowData> data;
-        //ShowData 展示数据
+    //ShowData 展示数据
         final int SEARCH = 0;
         final int LIVE = 1;
         final int ADBORAD = 2;
@@ -148,10 +278,11 @@ public class BlankFragment extends Fragment {
                 public String[] tabs;//直播间标签
                 public String[] name;//直播间名
                 public String[] amount;//直播间人数
-                public int size;//列表尺寸
+                public int col;//列表尺寸
+                public int row;
             }
 
-            void addDataLivelist(String listtitle, String[] titles, String[] urls, String[] liveurl, String[] tabs, String[] name, String[] amount, int size) {
+            void addDataLivelist(String listtitle, String[] titles, String[] urls, String[] liveurl, String[] tabs, String[] name, String[] amount, int col, int row) {
                 if (datatype != LIVE || hasData == true)
                     return;
                 liveListData = new LiveListData();
@@ -162,10 +293,10 @@ public class BlankFragment extends Fragment {
                 liveListData.tabs = tabs;
                 liveListData.name = name;
                 liveListData.amount = amount;
-                if (size <= 6)
-                    liveListData.size = size;
-                else
-                    liveListData.size = 6;
+                if(col*row != liveListData.titles.length)
+                    return;
+                liveListData.col = col;
+                liveListData.row = row;
                 hasData = true;
             }
 
@@ -258,93 +389,13 @@ public class BlankFragment extends Fragment {
             }
         }
 
-        //start thread for load data
-        public RecyclerViewAdapter(Context context) {
-            //mTitles = context.getResources().getStringArray(R.array.titles);
-            data = new ArrayList<>(10);
-            //添加搜索框项
-            LoadDataTask task1 = new LoadDataTask();
-            task1.execute(SEARCH,0,0);
-//            ShowData itemdata0 = new ShowData(SEARCH);
-//            itemdata0.addDataSearch("text", true);
-//            data.add(0, itemdata0);
-            //添加广告版项
-            LoadDataTask task2 = new LoadDataTask();
-            task2.execute(ADBORAD,1,0);
-//            ShowData itemdata1 = new ShowData(ADBORAD);
-//            String[] imageUrl = {"http://img.sccnn.com/bimg/338/50000.jpg", "", "", ""};
-//            String[] targetUrl = {"1", "1", "1", "1"};
-//            int[] index = {0, 1, 2, 3};
-//            String[] tag = {"广告1", "推广", "广告2", "广告3"};
-//            itemdata1.addDataAdver(imageUrl, targetUrl, index, tag);
-//            data.add(1, itemdata1);
-            //添加直播列表项
-            LoadDataTask task3 = new LoadDataTask();
-            task3.execute(LIVE,2,0);
-//            ShowData itemdata2 = new ShowData(LIVE);
-//            String listtitle = "全部直播";
-//            String[] titles = {"标题1", "标题2", "标题3", "标题4", "标题5", "标题6"};
-//            String[] imageUrl2 = {"http://img.sccnn.com/bimg/338/50000.jpg",
-//                    "https://p9.pstatp.com/weili/l/79053546024309963.webp",
-//                    "http://pic1.ooopic.com/uploadfilepic/sheying/2009-10-29/OOOPIC_wcl00124_2009102992c2017a3e978ef7.jpg", "", "", ""};
-//            String[] liveUrl = {"", "", "", "", "", ""};
-//            String[] livetag = {"绝地求生", "刺激战场", "暴雪专区", "LOL", "绝地求生", "绝地求生"};
-//            String[] livename = {"二丫", "DGTY", "Nova", "青蛙", "韦神", "二大爷"};
-//            String[] amount = {"1.1万", "5万", "4500", "11万", "902", "4111"};
-//            int size = 6;
-//            itemdata2.addDataLivelist(listtitle, titles, imageUrl2, liveUrl, livetag, livename, amount, size);
-//            data.add(2, itemdata2);
-//            //添加活动项
-            LoadDataTask task4 = new LoadDataTask();
-            task4.execute(ACTIVI,3,0);
-//            ShowData itemdata3 = new ShowData(ACTIVI);
-//            String[] titlesActivity = {"KPL2018春季赛", "QQ飞车手游新版上线", "LOL洲际赛对抗赛"};
-//            String[] textActivity = {"今天20点开始", "今天15点开始", "今天9点开始"};
-//            String[] numberOrder = {"10000", "100000", "10000"};
-//            String[] targetUrl2 = {"", "", ""};
-//            boolean[] hasOrder = {true, true, true, true};
-//            itemdata3.addDataActivity(titlesActivity, textActivity, numberOrder, targetUrl2, hasOrder);
-//            data.add(3, itemdata3);
-//
-//            //添加直播列表项2
-            LoadDataTask task5 = new LoadDataTask();
-            task5.execute(LIVE,4,1);
-//            ShowData itemdata4 = new ShowData(LIVE);
-//            String listtitle2 = "绝地求生";
-//            String[] titles2 = {"标题1", "标题2", "标题3", "标题4", "标题5", "标题6"};
-//            String[] imageUrl3 = {"http://img.sccnn.com/bimg/338/50000.jpg",
-//                    "https://p9.pstatp.com/weili/l/79053546024309963.webp",
-//                    "http://pic1.ooopic.com/uploadfilepic/sheying/2009-10-29/OOOPIC_wcl00124_2009102992c2017a3e978ef7.jpg", "", "", ""};
-//            String[] liveUrl2 = {"", "", "", "", "", ""};
-//            String[] livetag2 = {"", "", "", "", "", ""};
-//            String[] livename2 = {"二丫", "DGTY", "Nova", "青蛙", "韦神", "二大爷"};
-//            String[] amount2 = {"1.1万", "5万", "4500", "11万", "902", "4111"};
-//            int size2 = 6;
-//            itemdata4.addDataLivelist(listtitle2, titles2, imageUrl3, liveUrl2, livetag2, livename2, amount2, size2);
-//            data.add(4, itemdata4);
-//
-//            //添加广告列表项
-            LoadDataTask task6 = new LoadDataTask();
-            task6.execute(ADLIST,5,0);
-//            ShowData itemdata5 = new ShowData(ADLIST);
-//            String listtitle3 = "最新热游";
-//            String[] imageUrl4  = {"","","","","",""};
-//            String[] targetUrl4 = {"","","","","",""};
-//            String[] advertitle = {"刺激战场","逆水寒","全军出击","本周新游","QQ飞车","创造与魔法"};
-//            String[] advertext = {"10000人在播","5555人在播","666人在播","7777人在播","8人在播","10人在播"};
-//            itemdata5.addDataAdverList(listtitle3,imageUrl4,targetUrl4,advertitle,advertext);
-//            data.add(5,itemdata5);
-
-            mContext = context;
-            mLayoutInflater = LayoutInflater.from(context);
-        }
-
-        //prepare data
+            //prepare data
         public void prepareSearchData(ShowData data,int dataid){
             if(data.datatype != SEARCH)
                 return;
             data.addDataSearch("text", true);
         }
+
         public void prepareAdverboardData(ShowData data,int dataid){
             String[] imageUrl = {"http://img.sccnn.com/bimg/338/50000.jpg",
                     "http://img.sccnn.com/bimg/338/50105.jpg",
@@ -355,18 +406,41 @@ public class BlankFragment extends Fragment {
             String[] tag = {"广告1", "推广", "广告2", "广告3"};
             data.addDataAdver(imageUrl, targetUrl, index, tag);
         }
+
         public void prepareLiveData(ShowData data,int dataid){
-            String listtitle = "全部直播";
-            String[] titles = {"标题1", "标题2", "标题3", "标题4", "标题5", "标题6"};
-            String[] imageUrl2 = {"http://img.sccnn.com/bimg/338/50000.jpg",
-                    "https://p9.pstatp.com/weili/l/79053546024309963.webp",
-                    "http://pic1.ooopic.com/uploadfilepic/sheying/2009-10-29/OOOPIC_wcl00124_2009102992c2017a3e978ef7.jpg", "", "", ""};
-            String[] liveUrl = {"", "", "", "", "", ""};
-            String[] livetag = {"绝地求生", "刺激战场", "暴雪专区", "LOL", "绝地求生", "绝地求生"};
-            String[] livename = {"二丫", "DGTY", "Nova", "青蛙", "韦神", "二大爷"};
-            String[] amount = {"1.1万", "5万", "4500", "11万", "902", "4111"};
-            int size = 6;
-            data.addDataLivelist(listtitle, titles, imageUrl2, liveUrl, livetag, livename, amount, size);
+            if(dataid == 0) {
+                String listtitle = "全部直播";
+                String[] titles = {"标题1", "标题2", "标题3", "标题4", "标题5", "标题6", "标题7", "标题8"};
+                String[] imageUrl2 = {"http://img.sccnn.com/bimg/338/50000.jpg",
+                        "https://p9.pstatp.com/weili/l/79053546024309963.webp",
+                        "http://pic1.ooopic.com/uploadfilepic/sheying/2009-10-29/OOOPIC_wcl00124_2009102992c2017a3e978ef7.jpg",
+                        "http://img.sccnn.com/bimg/338/50093.jpg",
+                        "http://img.sccnn.com/bimg/338/50106.jpg",
+                        "http://img.sccnn.com/bimg/338/50092.jpg",
+                        "http://img.sccnn.com/bimg/338/50000.jpg", ""};
+                String[] liveUrl = {"", "", "", "", "", "", "", ""};
+                String[] livetag = {"绝地求生", "刺激战场", "暴雪专区", "LOL", "绝地求生", "绝地求生", "野外", "星秀"};
+                String[] livename = {"二丫", "DGTY", "Nova", "青蛙", "韦神", "二大爷", "1234", "CROW"};
+                String[] amount = {"1.1万", "5万", "4500", "11万", "902", "4111", "311", "8888"};
+                int col = 2;
+                int row = 4;
+                data.addDataLivelist(listtitle, titles, imageUrl2, liveUrl, livetag, livename, amount, col, row);
+            }
+            else{
+                String listtitle = "绝地求生";
+                String[] titles = {"标题1", "标题2", "标题3", "标题4"};
+                String[] imageUrl2 = {"http://img.sccnn.com/bimg/338/50000.jpg",
+                        "https://p9.pstatp.com/weili/l/79053546024309963.webp",
+                        "http://pic1.ooopic.com/uploadfilepic/sheying/2009-10-29/OOOPIC_wcl00124_2009102992c2017a3e978ef7.jpg",
+                        "http://img.sccnn.com/bimg/338/50093.jpg"};
+                String[] liveUrl = {"", "", "", ""};
+                String[] livetag = {"", "", "", ""};
+                String[] livename = {"韦神", "二大爷", "1234", "CROW"};
+                String[] amount = {"4500", "11万","311", "8888"};
+                int col = 2;
+                int row = 2;
+                data.addDataLivelist(listtitle, titles, imageUrl2, liveUrl, livetag, livename, amount, col, row);
+            }
         }
 
         public void prepareActivity(ShowData data,int dataid){
@@ -431,18 +505,62 @@ public class BlankFragment extends Fragment {
             @Override
             protected void onPostExecute(ShowData result) {
                 data.add(result.index,result);
-                notifyDataSetChanged();
+                mRecyclerViewAdapter.notifyDataSetChanged();
             }
+        }
+
+    public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewGroupHolder> {
+        private final LayoutInflater mLayoutInflater;
+        private final Context mContext;
+
+        private ArrayList<ShowData> data;
+
+        //start thread for load data
+        public RecyclerViewAdapter(Context context, ArrayList<ShowData> data) {
+            this.data = data;
+            mContext = context;
+            mLayoutInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return data.get(position).getType();
         }
 
         @Override
         public ViewGroupHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewGroupHolder(mLayoutInflater.inflate(R.layout.item_group, parent, false), context);
+            //Log.i("onCreateViewHolder", "" + viewType);
+            ViewGroupHolder viewGroupHolder = null;
+            switch (viewType) {
+                case SEARCH:
+                    View searchview = mLayoutInflater.inflate(R.layout.item_search, parent, false);
+                    viewGroupHolder =  new ViewGroupHolder(searchview, context);
+                    break;
+                case LIVE:
+                    View liveview = mLayoutInflater.inflate(R.layout.item_livelist, parent, false);
+                    viewGroupHolder =  new ViewGroupHolder(liveview, context);
+                    break;
+                case ADBORAD:
+                    View advboardview = mLayoutInflater.inflate(R.layout.item_adverboard, parent, false);
+                    viewGroupHolder =  new ViewGroupHolder(advboardview, context);
+                    break;
+                case ACTIVI:
+                    View activityview = mLayoutInflater.inflate(R.layout.item_activity, parent, false);
+                    viewGroupHolder =  new ViewGroupHolder(activityview, context);
+                    break;
+                case ADLIST:
+                    View advlistview = mLayoutInflater.inflate(R.layout.item_adverlist, parent, false);
+                    viewGroupHolder =  new ViewGroupHolder(advlistview, context);
+                    break;
+                default:
+                    View defaultview = mLayoutInflater.inflate(R.layout.item_search, parent, false);
+                    viewGroupHolder =  new ViewGroupHolder(defaultview, context);
+            }
+            return viewGroupHolder;
         }
 
         @Override
         public void onBindViewHolder(ViewGroupHolder holder, int position) {
-            //Log.i("onBindViewHolder",data.size()+"");
             holder.show(data.get(position));
         }
 
@@ -454,59 +572,67 @@ public class BlankFragment extends Fragment {
         public class ViewGroupHolder extends RecyclerView.ViewHolder implements View.OnTouchListener {
             ViewGroup parentview;
             View itemview;
+            View itemview2;
             private final LayoutInflater itemInflater;
             Handler handler;
+            ImageLoader imageLoader;
 
             ViewGroupHolder(View view, Context context) {
                 super(view);
-                parentview = (ViewGroup) view;
+                //parentview = (ViewGroup) view;
+                itemview = view;
                 itemInflater = LayoutInflater.from(context);
                 handler = new Handler();
+                imageLoader = ImageLoader.getInstance();
             }
 
             public void show(ShowData data) {
                 switch (data.getType()) {
                     case SEARCH:
-                        itemview = itemInflater.inflate(R.layout.item_search, parentview, false);
-                        SearchView searchView = itemview.findViewById(R.id.searchview);
-                        Button scanbutton = itemview.findViewById(R.id.scanbt);
                         ShowData.SearchData searchData = (ShowData.SearchData) data.getData();
-                        //扫描按钮
-                        if (searchData.hasScanBtn == false) {
-                            scanbutton.setVisibility(View.GONE);
-                        } else {
-                            scanbutton.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    //调用摄像头
-                                }
-                            });
-                        }
-                        //搜索框
-                        searchView.setQueryHint("这里其实应该是按钮:" + searchData.bgtext);
+                        showSearch(itemview, context, searchData);
                         break;
                     case LIVE:
-                        itemview = itemInflater.inflate(R.layout.item_livelist, parentview, false);
                         ShowData.LiveListData liveData = (ShowData.LiveListData) data.getData();
                         showLivelist(itemview, context, liveData);
                         break;
                     case ADBORAD:
-                        itemview = itemInflater.inflate(R.layout.item_adverboard, parentview, false);
                         ShowData.AdverboardData adboardData = (ShowData.AdverboardData) data.getData();
                         showAdverboard(itemview, context, adboardData);
                         break;
                     case ACTIVI:
-                        itemview = itemInflater.inflate(R.layout.item_activity, parentview, false);
                         ShowData.ActivityData activityData = (ShowData.ActivityData) data.getData();
                         showActivity(itemview, context, activityData);
                         break;
                     case ADLIST:
-                        itemview = itemInflater.inflate(R.layout.item_adverlist, parentview, false);
+//                        itemview = itemInflater.inflate(R.layout.item_adverlist, parentview, false);
                         ShowData.AdverlistData adverlistData = (ShowData.AdverlistData) data.getData();
                         showAdverlist(itemview, context, adverlistData);
                         break;
                 }
-                parentview.addView(itemview);
+//                if(data.getType() != SEARCH)
+//                    parentview.addView(itemview);
+            }
+
+            /**
+             * 根据传入数据展示 搜索框
+             * **/
+            public void showSearch(View view, Context context, ShowData.SearchData searchData){
+                SearchView searchView = view.findViewById(R.id.searchview);
+                Button scanbutton = view.findViewById(R.id.scanbt);
+                //扫描按钮
+                if (searchData.hasScanBtn == false) {
+                    scanbutton.setVisibility(View.GONE);
+                } else {
+                    scanbutton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //调用摄像头
+                        }
+                    });
+                }
+                //搜索框
+                searchView.setQueryHint("这里其实应该是按钮:" + searchData.bgtext);
             }
 
             /**
@@ -519,6 +645,7 @@ public class BlankFragment extends Fragment {
             List<ImageView> mImageList;
             List<RadioButton> mDotList;
             ShowData.AdverboardData adboardData;
+            protected static final long msg_delay = 3000;//滚动时延
             public void showAdverboard(View view, Context context, ShowData.AdverboardData adboardData) {
                 this.adboardData = adboardData;
                 String[] imageUrl = adboardData.imageUrl;
@@ -545,13 +672,31 @@ public class BlankFragment extends Fragment {
                 for (int i = 0; i < index.length; i++) {
                     ImageView imageView = new ImageView(context);
                     imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-                    if (imageUrl[index[i]] != "") {
-                        HttpImgThread httpImgThread = new HttpImgThread(handler, imageView, imageUrl[index[i]]);
-                        new Thread(httpImgThread).start();
-                    } else {
-                        Drawable bg = getResources().getDrawable(R.drawable.bg_live_img);
-                        imageView.setBackgroundDrawable(bg);
-                    }
+//                    if (imageUrl[index[i]] != "") {
+//                        HttpImgThread httpImgThread = new HttpImgThread(handler, imageView, imageUrl[index[i]]);
+//                        new Thread(httpImgThread).start();
+//                    } else {
+//                        Drawable bg = getResources().getDrawable(R.drawable.bg_live_img);
+//                        imageView.setBackgroundDrawable(bg);
+//                    }
+                    imageLoader.displayImage(imageUrl[index[i]], imageView, new ImageLoadingListener() {
+                        @Override
+                        public void onLoadingStarted(String arg0, View arg1) {
+                        }
+
+                        @Override
+                        public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+                        }
+
+                        @Override
+                        public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
+                        }
+
+                        @Override
+                        public void onLoadingCancelled(String arg0, View arg1) {
+
+                        }
+                    });
                     mImageList.add(imageView);
                 }
                 //配置适配器等
@@ -691,7 +836,7 @@ public class BlankFragment extends Fragment {
                  */
                 protected static final int MSG_PAGE_CHANGED = 4;
                 // 轮播间隔时间
-                protected static final long MSG_DELAY = 3000;
+                protected static final long MSG_DELAY = msg_delay;
                 //  使用弱引用避免Handler泄露.这里的泛型参数可以不是Activity，也可以是Fragment等
                 private WeakReference<ViewGroupHolder> weakReference;
                 private int currentItem = 0;
@@ -772,65 +917,54 @@ public class BlankFragment extends Fragment {
                 icon.setBounds(0, 0, 35, 35);
                 textViewListtitle.setCompoundDrawables(icon, null, null, null);
 
-                for (int i = 0; i < liveListData.size; i++) {
-                    LinearLayout itembase;
-                    switch (i) {
-                        case 0:
-                            itembase = view.findViewById(R.id.row0col0);
-                            break;
-                        case 1:
-                            itembase = view.findViewById(R.id.row0col1);
-                            break;
-                        case 2:
-                            itembase = view.findViewById(R.id.row1col0);
-                            break;
-                        case 3:
-                            itembase = view.findViewById(R.id.row1col1);
-                            break;
-                        case 4:
-                            itembase = view.findViewById(R.id.row2col0);
-                            break;
-                        case 5:
-                            itembase = view.findViewById(R.id.row2col1);
-                            break;
-                        default:
-                            return;
+                TableLayout tableLayout = view.findViewById(R.id.tableLayout);
+                //tableLayout.setStretchAllColumns(true);//设置所有的item都可伸缩扩展
+                for (int i = 0; i < liveListData.row; i++) {
+                    LinearLayout tableRow = new LinearLayout(context);
+                    tableRow.setOrientation(LinearLayout.HORIZONTAL);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1.0f);
+                    for (int k = 0; k < liveListData.col; k++) {
+                        int index = i*liveListData.col+k;
+                        View item_live = mLayoutInflater.inflate(R.layout.item_live, null);
+                        //View item_live = new View(itemview2);
+                        //TODO 为整个布局设置点击响应
+                        ImageView imageView = item_live.findViewById(R.id.imageView);
+                        //开启线程下载url图片并显示
+                        imageLoader.displayImage(liveListData.urls[index], imageView, new ImageLoadingListener() {
+                                @Override
+                                public void onLoadingStarted(String arg0, View arg1) {
+                                }
+
+                                @Override
+                                public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+                                }
+
+                                @Override
+                                public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
+                                }
+
+                                @Override
+                                public void onLoadingCancelled(String arg0, View arg1) {
+
+                                }
+                            });
+
+                        TextView textViewTitle = item_live.findViewById(R.id.textViewTitle);
+                        TextView textViewTag = item_live.findViewById(R.id.textViewTag);
+                        TextView textViewName = item_live.findViewById(R.id.textViewName);
+                        TextView textViewAmount = item_live.findViewById(R.id.textViewAmount);
+                        textViewTitle.setText(liveListData.titles[index]);
+                        textViewTag.setText(liveListData.tabs[index]);
+                        textViewName.setText(liveListData.name[index]);
+                        textViewAmount.setText(liveListData.amount[index]);
+
+                        tableRow.addView(item_live);
+                        item_live.setLayoutParams(lp);
                     }
-                    View item_live = itemInflater.inflate(R.layout.item_live, (ViewGroup) view, false);
-                    //为整个布局设置点击响应
-
-                    ImageView imageView = item_live.findViewById(R.id.imageView);
-                    //开启线程下载url图片并显示
-                    if (liveListData.urls[i] != "") {
-                        //检查授权
-                        int REQUEST_EXTERNAL_STORAGE = 1;
-                        String[] PERMISSIONS_STORAGE = {
-                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        };
-                        int permission = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                        if (permission != PackageManager.PERMISSION_GRANTED) {
-                            // We don't have permission so prompt the user
-                            ActivityCompat.requestPermissions(
-                                    getActivity(),
-                                    PERMISSIONS_STORAGE,
-                                    REQUEST_EXTERNAL_STORAGE
-                            );
-                        }
-                        HttpImgThread httpImgThread = new HttpImgThread(handler, imageView, liveListData.urls[i]);
-                        new Thread(httpImgThread).start();
-                    }
-
-                    TextView textViewTitle = item_live.findViewById(R.id.textViewTitle);
-                    TextView textViewTag = item_live.findViewById(R.id.textViewTag);
-                    TextView textViewName = item_live.findViewById(R.id.textViewName);
-                    TextView textViewAmount = item_live.findViewById(R.id.textViewAmount);
-                    textViewTitle.setText(liveListData.titles[i]);
-                    textViewTag.setText(liveListData.tabs[i]);
-                    textViewName.setText(liveListData.name[i]);
-                    textViewAmount.setText(liveListData.amount[i]);
-
-                    itembase.addView(item_live);
+                    tableLayout.addView(tableRow);
                 }
             }
 
@@ -1009,10 +1143,25 @@ public class BlankFragment extends Fragment {
                     TextView adverlistTitle = itemview.findViewById(R.id.adverlistTitle);
                     TextView adverlistText = itemview.findViewById(R.id.adverlistText);
                     ImageView itemIcon = itemview.findViewById(R.id.itemIcon);
+                    imageLoader.displayImage(adverlistData.imageUrl[i],itemIcon,new ImageLoadingListener() {
+                        @Override
+                        public void onLoadingStarted(String arg0, View arg1) {
+                        }
+
+                        @Override
+                        public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+                        }
+
+                        @Override
+                        public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
+                        }
+
+                        @Override
+                        public void onLoadingCancelled(String arg0, View arg1) {
+                        }
+                    });
                     adverlistTitle.setText(adverlistData.advertitle[i]);
                     adverlistText.setText(adverlistData.advertext[i]);
-
-                    //itemIcon.setBackground();
 
                     linerAverlist.addView(itemview);
                 }

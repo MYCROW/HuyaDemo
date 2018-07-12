@@ -15,19 +15,24 @@
 
     <TextView
         android:id="@+id/adverlistTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/adverlist_width"
         android:layout_height="@dimen/adverlist_title_height"
         android:layout_below="@id/itemIcon"
         android:gravity="center"
+        android:textAlignment="center"
         android:text="TextView"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:textColor="@color/colorAccent"
+        android:textSize="20px"/>
 
     <TextView
         android:id="@+id/adverlistText"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/adverlist_width"
         android:layout_height="@dimen/adverlist_test_height"
         android:layout_below="@id/adverlistTitle"
         android:gravity="center"
-        android:text="TextView" />
+        android:textAlignment="center"
+        android:text="TextView"
+        android:textSize="15px"/>
 
 </RelativeLayout>

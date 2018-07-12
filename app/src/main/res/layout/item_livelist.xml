@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -21,80 +21,80 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textViewListtitle">
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <!--<TableRow-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
 
-            <LinearLayout
-                android:id="@+id/row0col0"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:padding="3dip" >
+            <!--<LinearLayout-->
+                <!--android:id="@+id/row0col0"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:padding="3dip" >-->
 
-            </LinearLayout>
+            <!--</LinearLayout>-->
 
-            <LinearLayout
-                android:id="@+id/row0col1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:padding="3dip" >
+            <!--<LinearLayout-->
+                <!--android:id="@+id/row0col1"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:padding="3dip" >-->
 
-            </LinearLayout>
-        </TableRow>
+            <!--</LinearLayout>-->
+        <!--</TableRow>-->
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <!--<TableRow-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" >-->
 
-            <LinearLayout
-                android:id="@+id/row1col0"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:padding="3dip" >
+            <!--<LinearLayout-->
+                <!--android:id="@+id/row1col0"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:padding="3dip" >-->
 
-            </LinearLayout>
+            <!--</LinearLayout>-->
 
-            <LinearLayout
-                android:id="@+id/row1col1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:padding="3dip" >
+            <!--<LinearLayout-->
+                <!--android:id="@+id/row1col1"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:padding="3dip" >-->
 
-            </LinearLayout>
-        </TableRow>
+            <!--</LinearLayout>-->
+        <!--</TableRow>-->
 
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+        <!--<TableRow-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" >-->
 
-            <LinearLayout
-                android:id="@+id/row2col0"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:padding="3dip" >
+            <!--<LinearLayout-->
+                <!--android:id="@+id/row2col0"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:padding="3dip" >-->
 
-            </LinearLayout>
+            <!--</LinearLayout>-->
 
-            <LinearLayout
-                android:id="@+id/row2col1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_weight="1"
-                android:padding="3dip" >
+            <!--<LinearLayout-->
+                <!--android:id="@+id/row2col1"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_weight="1"-->
+                <!--android:padding="3dip" >-->
 
-            </LinearLayout>
-        </TableRow>
+            <!--</LinearLayout>-->
+        <!--</TableRow>-->
 
     </TableLayout>
 
