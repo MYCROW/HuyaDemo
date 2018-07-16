@@ -2,6 +2,7 @@ package com.example.crow.huyademo;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -33,16 +34,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //底部选项卡响应
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+//        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+//        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         //顶部选项卡响应
         tabs = (CategoryTabStrip) findViewById(R.id.category_strip);
         pager = (ViewPager) findViewById(R.id.view_pager);
         adapter = new TopPagerAdapter(getSupportFragmentManager());
-
-        pager.setAdapter(adapter);
-        tabs.setViewPager(pager);
 
         //检查授权
         int REQUEST_EXTERNAL_STORAGE = 1;
@@ -64,25 +62,52 @@ public class MainActivity extends AppCompatActivity {
     //顶部选项卡适配器
     public class TopPagerAdapter extends FragmentPagerAdapter {
 
-        private final List<String> catalogs = new ArrayList<String>();
+        private List<String> catalogs = new ArrayList<String>();
+
+        public class LoadTopData extends AsyncTask<Integer, Integer, ArrayList<String>> {
+            // doInBackground（）
+            // 作用：接收输入参数、执行任务中的耗时操作、返回 线程任务执行的结果
+            // 注：必须复写，从而自定义线程任务
+            @Override
+            protected ArrayList<String> doInBackground(Integer... params) {
+                ArrayList<String> data = new ArrayList<>();
+                data.add(getString(R.string.top_recommand));
+                data.add(getString(R.string.top_recommand1));
+                data.add(getString(R.string.top_recommand2));
+                data.add(getString(R.string.top_recommand3));
+                data.add(getString(R.string.top_recommand4));
+                data.add(getString(R.string.top_recommand5));
+                data.add(getString(R.string.top_recommand6));
+                data.add(getString(R.string.top_recommand7));
+                data.add(getString(R.string.top_recommand8));
+                data.add(getString(R.string.top_recommand9));
+                data.add(getString(R.string.top_recommand10));
+                data.add(getString(R.string.top_recommand11));
+                data.add(getString(R.string.top_recommand12));
+                data.add(getString(R.string.top_recommand13));
+                data.add(getString(R.string.top_recommand14));
+                return data;
+            }
+
+            // onPostExecute（）
+            // 作用：接收线程任务执行结果、将执行结果显示到UI组件
+            // 注：必须复写，从而自定义UI操作
+            @Override
+            protected void onPostExecute(ArrayList<String> result) {
+                catalogs = result;
+                if(pager.getAdapter()==null) {
+                    pager.setAdapter(adapter);
+                    tabs.setViewPager(pager);
+                }
+                else
+                    adapter.notifyDataSetChanged();
+            }
+        }
 
         public TopPagerAdapter(FragmentManager fm) {
             super(fm);
-            catalogs.add(getString(R.string.top_recommand));
-            catalogs.add(getString(R.string.top_recommand1));
-            catalogs.add(getString(R.string.top_recommand2));
-            catalogs.add(getString(R.string.top_recommand3));
-            catalogs.add(getString(R.string.top_recommand4));
-            catalogs.add(getString(R.string.top_recommand5));
-            catalogs.add(getString(R.string.top_recommand6));
-            catalogs.add(getString(R.string.top_recommand7));
-            catalogs.add(getString(R.string.top_recommand8));
-            catalogs.add(getString(R.string.top_recommand9));
-            catalogs.add(getString(R.string.top_recommand10));
-            catalogs.add(getString(R.string.top_recommand11));
-            catalogs.add(getString(R.string.top_recommand12));
-            catalogs.add(getString(R.string.top_recommand13));
-            catalogs.add(getString(R.string.top_recommand14));
+            LoadTopData task = new LoadTopData();
+            task.execute();
         }
 
         @Override
