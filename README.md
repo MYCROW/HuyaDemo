@@ -20,4 +20,5 @@ RecycleView综合学习-仿照虎牙直播首页的应用
 未实现: <br>
 1.内容刷新<br>
 2.内容加载（目前是给定字符串，希望从服务器得到）<br>
+3.依然存在skipping XX frames 的logcat（性能问题）<br>
 TODO
